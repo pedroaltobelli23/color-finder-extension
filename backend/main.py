@@ -57,8 +57,8 @@ def RGB2HEX(color):
 
 def image_quantization(image, number_of_colors):
     # Do the quantization of an image, using Kmeans. Return the quantizated image and all its colors
-    modified_image = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
-    modified_image = modified_image.reshape(modified_image.shape[0]*modified_image.shape[1], 3)
+    modified_image_raw = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
+    modified_image = modified_image_raw.reshape(modified_image_raw.shape[0]*modified_image_raw.shape[1], 3)
     stop_loop = False
     while not stop_loop:
         clf = KMeans(n_clusters=number_of_colors, n_init='auto')
@@ -82,7 +82,7 @@ def image_quantization(image, number_of_colors):
             
     name_quantColorHEX = {k: RGB2HEX(v) for k, v in name_quantColorRGB.items()}
 
-    return quantized_image, name_quantColorRGB
+    return modified_image_raw, quantized_image, name_quantColorRGB
 
 def main(img_path: os.path.abspath):
     image_raw = cv2.imread(img_path)
@@ -90,11 +90,15 @@ def main(img_path: os.path.abspath):
     print(f"The type of this input is {type(image)}")
     print(f"Shape: {image.shape}")
     print("Doing image quantizaion: ", end="\n")
-    quantized_image, name_quantColorRGB = image_quantization(image, 6)
+    resized_image, quantized_image, name_quantColorRGB = image_quantization(image, 6)
     print(name_quantColorRGB)
-    plt.imshow(quantized_image)
-    plt.imsave("result.png", quantized_image)
+    
+    # plt.imshow(quantized_image)
+    plt.imsave("result.png", quantized_image)    
+    # plt.imshow(resized_image)
+    plt.imsave("resized.png", resized_image)
     plt.show()
+    
     return 0
 
 if __name__=="__main__":

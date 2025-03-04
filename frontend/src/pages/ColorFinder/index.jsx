@@ -1,40 +1,53 @@
 import { useRef, useEffect, useState } from "react";
 
-const colors = {'olive': ["176", "170",  "65"], 'silver': ["190", "198", "205"], 'darkblue': [ "33", "102", "202"], 'gray': ["90", "78", "47"]}
+const colors = {
+  olive: ["176", "170", "65"],
+  silver: ["190", "198", "205"],
+  darkblue: ["33", "102", "202"],
+  gray: ["90", "78", "47"],
+};
 
 export default function ColorFinder() {
   const canvasRef = useRef(null);
   const [hoveredColor, setHoveredColor] = useState(null);
-  const imageSrc = "/result.png"; // Altere para o caminho correto
+  const imageSrc = "/result.png"; // Base image
+  const overlaySrc = "/resized.png"; // Image to overlay
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const img = new Image();
     img.src = imageSrc;
+
     img.onload = () => {
-      console.log(img.width)
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
+
+      // Load and draw overlay image
+      const overlay = new Image();
+      overlay.src = overlaySrc;
+      overlay.onload = () => {
+        ctx.drawImage(overlay, 0, 0);
+      };
     };
-  }, [imageSrc]);
+  }, [imageSrc, overlaySrc]);
 
   const checkPixel = (pixel) => {
     let closestColor = null;
     let smallestDiff = Infinity;
 
     for (const [colorName, colorRGB] of Object.entries(colors)) {
-        const diff = Math.abs(pixel[0] - colorRGB[0]) +
-                     Math.abs(pixel[1] - colorRGB[1]) +
-                     Math.abs(pixel[2] - colorRGB[2]);
+      const diff =
+        Math.abs(pixel[0] - colorRGB[0]) +
+        Math.abs(pixel[1] - colorRGB[1]) +
+        Math.abs(pixel[2] - colorRGB[2]);
 
-        if (diff < smallestDiff) {
-            smallestDiff = diff;
-            closestColor = colorName;
-        }
+      if (diff < smallestDiff) {
+        smallestDiff = diff;
+        closestColor = colorName;
+      }
     }
-    console.log(closestColor)
     return closestColor;
   };
 
@@ -44,10 +57,16 @@ export default function ColorFinder() {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Get the pixel color from the base image
     const pixel = ctx.getImageData(x, y, 1, 1).data;
-    const closestColor = checkPixel(pixel)
-    const colorhex = `#${pixel[0].toString(16).padStart(2, "0")}${pixel[1].toString(16).padStart(2, "0")}${pixel[2].toString(16).padStart(2, "0")}`;
-    setHoveredColor({ name: closestColor, color: colorhex });
+    const closestColor = checkPixel(pixel);
+    const closestColorRGB = colors[closestColor]
+    const colorHex = `#${parseInt(closestColorRGB[0], 10).toString(16).padStart(2, "0")}${parseInt(closestColorRGB[1], 10)
+      .toString(16)
+      .padStart(2, "0")}${parseInt(closestColorRGB[2], 10).toString(16).padStart(2, "0")}`;
+    console.log(colorHex)
+    setHoveredColor({ name: closestColor, color: colorHex });
   };
 
   return (
