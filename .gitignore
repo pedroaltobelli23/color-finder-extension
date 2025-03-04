@@ -1,3 +1,7 @@
+# python
+backend/new_test/
+backend/venv/
+
 # Logs
 logs
 *.log
