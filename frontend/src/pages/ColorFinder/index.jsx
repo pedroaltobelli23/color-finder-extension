@@ -1,11 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 
-const colors = {
-  olive: ["176", "170", "65"],
-  silver: ["190", "198", "205"],
-  darkblue: ["33", "102", "202"],
-  gray: ["90", "78", "47"],
-};
+const colors = {'darkgoldenrod': [204, 194,  66], 'saddlebrown': [117,  99,  49], 'lightcyan': [200, 213, 238], 'cadetblue': [ 15,  59, 149], 'darkmagenta': [160, 159,  52], 'black': [26, 25, 34], 'aquamarine': [ 51, 131, 233], 'silver': [187, 191, 178], 'tan': [170, 159, 122]}
 
 export default function ColorFinder() {
   const canvasRef = useRef(null);

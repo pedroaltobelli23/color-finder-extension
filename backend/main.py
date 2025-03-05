@@ -5,28 +5,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from skimage.color import rgb2lab, deltaE_cie76, lab2rgb
 import os
-
-HTML_HSV_COLORS = {
-    "red": [0, 255, 255],
-    "cyan": [90, 255, 255],
-    "blue": [120, 255, 255],
-    "darkblue": [120, 255, 139],
-    "lightblue": [97, 63, 230],
-    "purple": [150, 255, 128],
-    "yellow": [30, 255, 255],
-    "lime": [60, 255, 255],
-    "magenta": [150, 255, 255],
-    "pink": [174, 63, 255],
-    "white": [0, 0, 255],
-    "silver": [0, 0, 192],
-    "gray": [0, 0, 128],
-    "black": [0, 0, 0],
-    "orange": [19, 255, 255],
-    "maroon": [0, 255, 128],
-    "green": [60, 255, 128],
-    "olive": [30, 255, 128],
-    "aquamarine": [79, 128, 255],
-}
+from parameters import BASIC_HSV_COLORS, HTML_HSV_COLORS, X11_HSV_COLORS
 
 def hsv_to_rgb(code):
     h = code[0]
@@ -90,11 +69,11 @@ def main(img_path: os.path.abspath):
     print(f"The type of this input is {type(image)}")
     print(f"Shape: {image.shape}")
     print("Doing image quantizaion: ", end="\n")
-    resized_image, quantized_image, name_quantColorRGB = image_quantization(image, 6)
+    resized_image, quantized_image, name_quantColorRGB = image_quantization(image, 60)
     print(name_quantColorRGB)
     
     # plt.imshow(quantized_image)
-    plt.imsave("result.png", quantized_image)    
+    plt.imsave("result.png", quantized_image)
     # plt.imshow(resized_image)
     plt.imsave("resized.png", resized_image)
     plt.show()
@@ -102,5 +81,8 @@ def main(img_path: os.path.abspath):
     return 0
 
 if __name__=="__main__":
-    img_path = os.path.abspath("/home/pedro/Documents/color-finder-extension/backend/bird.jpg")
-    main(img_path)
+    imgs_path = "/home/pedro/Documents/color-finder-extension/backend/a_imgs"
+    
+    for file in os.listdir(imgs_path):
+        img_path = os.path.join(imgs_path, file)
+        main(img_path)
