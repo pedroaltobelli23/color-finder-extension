@@ -72,7 +72,7 @@ var capture = (force) => {
         console.log(res)
         overlay(false)
         crop(res.image, _selection, devicePixelRatio, config.scaling, config.format, (image) => {
-          save(image, config.format, config.save, config.clipboard, config.dialog)
+          save(image, config.format, config.save)
           selection = null
         })
       })
@@ -80,56 +80,11 @@ var capture = (force) => {
   }
 }
 
-var filename = (format) => {
-  var pad = (n) => (n = n + '', n.length >= 2 ? n : `0${n}`)
-  var ext = (format) => format === 'jpeg' ? 'jpg' : format === 'png' ? 'png' : 'png'
-  var timestamp = (now) =>
-    [pad(now.getFullYear()), pad(now.getMonth() + 1), pad(now.getDate())].join('-')
-    + ' - ' +
-    [pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())].join('-')
-  return `Screenshot Capture - ${timestamp(new Date())}.${ext(format)}`
-}
-
-var save = (image, format, save, clipboard, dialog) => {
+var save = (image, format, save) => {
   if (save.includes('file')) {
-    var link = document.createElement('a')
-    link.download = filename(format)
-    link.href = image
-    link.click()
-  }
-  if (save.includes('clipboard')) {
-    if (clipboard === 'url') {
-      navigator.clipboard.writeText(image).then(() => {
-        if (dialog) {
-          alert([
-            'Screenshot Capture:',
-            'Data URL String',
-            'Saved to Clipboard!'
-          ].join('\n'))
-        }
-      })
-    }
-    else if (clipboard === 'binary') {
-      var [header, base64] = image.split(',')
-      var [_, type] = /data:(.*);base64/.exec(header)
-      var binary = atob(base64)
-      var array = Array.from({length: binary.length})
-        .map((_, index) => binary.charCodeAt(index))
-      navigator.clipboard.write([
-        new ClipboardItem({
-          // jpeg is not supported on write, though the encoding is preserved
-          'image/png': new Blob([new Uint8Array(array)], {type: 'image/png'})
-        })
-      ]).then(() => {
-        if (dialog) {
-          alert([
-            'Screenshot Capture:',
-            'Binary Image',
-            'Saved to Clipboard!'
-          ].join('\n'))
-        }
-      })
-    }
+    //Open frontend
+    console.log(image)
+    window.open("https://github.com/explore", "_blank");
   }
 }
 

@@ -30,7 +30,6 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.message === 'capture') {
     chrome.tabs.query({active: true, currentWindow: true}, (tab) => {
       chrome.tabs.captureVisibleTab(tab.windowId, {format: req.format, quality: req.quality}, (image) => {
-        // image is base64
         res({message: 'image', image})
       })
     })
