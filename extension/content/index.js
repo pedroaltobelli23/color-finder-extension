@@ -62,6 +62,7 @@ var init = (done) => {
 }
 
 var capture = (force) => {
+  console.log()
   if (selection && (config.method === 'crop' || (config.method === 'wait' && force))) {
     jcrop.release()
     setTimeout(() => {
@@ -77,6 +78,21 @@ var capture = (force) => {
         })
       })
     }, 50)
+  } else if (config.method === 'page') {
+    chrome.runtime.sendMessage({
+      message: 'capture', format: config.format, quality: config.quality
+    }, (res) => {
+      overlay(false)
+      if (devicePixelRatio !== 1 && !config.scaling) {
+        var area = {x: 0, y: 0, w: innerWidth, h: innerHeight}
+        crop(res.image, area, devicePixelRatio, config.scaling, config.format, (image) => {
+          save(image, config.format, config.save, config.clipboard, config.dialog)
+        })
+      }
+      else {
+        save(res.image, config.format, config.save, config.clipboard, config.dialog)
+      }
+    })
   }
 }
 
@@ -97,8 +113,11 @@ window.addEventListener('resize', ((timeout) => () => {
 })())
 
 chrome.runtime.onMessage.addListener((req, sender, res) => {
+  console.log(req)
+  config.method = req.method
   if (req.message === 'init') {
     res({}) // prevent re-injecting
+    
     if (!jcrop) {
       image(() => init(() => {
         overlay()
