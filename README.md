@@ -30,3 +30,8 @@ Uses **image quantization** to analyze colors, allowing users to fine-tune param
 2. 
 
 inkscape logo.svg -w 128 -h 128 --export-png=128x128.png
+
+# Tasks: 
+- Fazer o backend funcionar
+- Usar bootstrap para fazer o webproject e também a extensão
+- Ver como subiria usando docker. Testar com docker lcoal mesmo para depois tentar com raspberry PI

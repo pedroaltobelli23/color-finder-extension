@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.sessions import SessionMiddleware
 
-from routers.basic_route import api_basic
+from backend.routers.image_route import api_image
 app = FastAPI()
 
 app.add_middleware(
@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 api = APIRouter(prefix="/api")
-api.include_router(api_basic)
+api.include_router(api_image)
 
 app.include_router(api)
 
