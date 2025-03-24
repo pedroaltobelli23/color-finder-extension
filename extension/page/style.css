@@ -14,6 +14,8 @@ header {
 
 :root {
     --bs-body-bg: var(--bs-gray-100);
+    --bs-body-font-family: 'Lora', serif;
+    font-style: normal;
 }
 
 /* Dark mode styles */
@@ -23,4 +25,33 @@ body.dark-mode {
 }
 .dark-mode .nav-link {
     color: #ffffff;
+}
+
+/*Rainbow tittle*/
+.wordA {
+    --colorA: red;
+    --colorB: yellow;
+    --conlorC: blue;
+}
+
+.wordB {
+    --colorA: blue;
+    --colorB: red;
+    --conlorC: yellow;
+}
+
+.wordC {
+    --colorA: yellow;
+    --colorB: blue;
+    --conlorC: red;
+}
+
+@keyframes rainbow {
+    33% {color: var(--colorA); }
+    66% {color: var(--colorB); }
+    100% {color: var(--colorC); }
+}
+
+.rainbow {
+    animation: 2s infinite rainbow;
 }

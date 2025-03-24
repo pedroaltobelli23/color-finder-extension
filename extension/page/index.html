@@ -4,23 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Extension Popup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <link href="/vendor/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" />
     <link href="/vendor/mdc.min.css" rel="stylesheet" type="text/css" media="all" />
     <link rel="stylesheet" href="/page/style.css">
     <script src="/vendor/mdc.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="/vendor/mithril.min.js" type="text/javascript" charset="utf-8"></script>
 </head>
-<body data-theme="light">
-    <header class="d-flex justify-content-between py-3 px-3 mb-4 border-bottom">
-        <a href="/" class="link-body-emphasis text-decoration-none">
-            <img src="/icons/48x48.png" alt="logo">            
-            <span class="fs-4">Color Name Finder</span>
+<body data-theme="light" class="d-flex justify-content-start flex-column align-items-center">
+    <header class="d-flex justify-content-between align-items-center py-3 px-3 bg-primary text-white">
+        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/font-style" target="_blank" class="d-flex flex-row align-items-center text-decoration-none">
+            <img src="/icons/48x48.png" alt="logo">
+            <h2  class="px-1 text-dark">
+                Color Namer Finder
+            </h2>
         </a>
     
         <ul class="nav nav-pills">
             <li class="nav-item">
-                <a href="#" class="nav-link active" aria-current="page" id="themeToggle">
-                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
+                <a href="#" class="btn btn-primary btn-lg active d-flex align-self-center" aria-current="page" id="themeToggle">
+                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon">
                         <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286"/>
                     </svg>
                 </a>
@@ -29,12 +34,18 @@
     </header>
     
 
-    <div class="container my-5">
-        <p>Take screenshot and get the names of all color in the image!</p>
+    <div class="mx-4 my-3 d-flex flex-column flex-grow-1">
+        <div>
+            <h3>Take screenshot and get the name of all color in the image!</h3>
+        </div>
         
-        <p>Capture method:</p>
-        <button id="injectButton" type="button" class="btn btn-primary">Crop Current Tab</button>
-        <button id="fullpageButton" type="button" class="btn btn-secundary">Full Current Tab</button>
+        <div class="d-flex flex-column justify-content-center align-items-center w-100 mt-auto">
+            <h4>Capture Method</h4>
+            <div class="d-flex justify-content-center">
+                <button id="injectButton" type="button" class="btn btn-primary mx-2">Crop Current Tab</button>
+                <button id="fullpageButton" type="button" class="btn btn-secundary text-dark mx-2">Full Current Tab</button>
+            </div>
+        </div>
     </div>
 
     <script src="/vendor/bootstrap.bundle.js"></script>
