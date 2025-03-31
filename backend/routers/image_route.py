@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response
 from typing import Optional
 from fastapi.responses import JSONResponse
-from backend.controllers.image_control import ImageControl
+from controllers.image_control import ImageControl
 
 api_image = APIRouter(prefix="/image")
 
