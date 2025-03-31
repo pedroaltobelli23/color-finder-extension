@@ -15,7 +15,7 @@ var config = {
 var overlay = ((active) => (state) => {
   active = typeof state === 'boolean' ? state : state === null ? active : !active
   $('.jcrop-holder')[active ? 'show' : 'hide']()
-  chrome.runtime.sendMessage({message: 'active', active})
+  chrome.runtime.sendMessage({ message: 'active', active })
 })(false)
 
 var image = (done) => {
@@ -43,7 +43,7 @@ var init = (done) => {
         selection = null
       }, 100)
     }
-  }, function ready () {
+  }, function ready() {
     jcrop = this
 
     $('.jcrop-hline, .jcrop-vline').css({
@@ -62,7 +62,6 @@ var init = (done) => {
 }
 
 var capture = (force) => {
-  console.log()
   if (selection && (config.method === 'crop' || (config.method === 'wait' && force))) {
     jcrop.release()
     setTimeout(() => {
@@ -70,10 +69,9 @@ var capture = (force) => {
       chrome.runtime.sendMessage({
         message: 'capture', format: config.format, quality: config.quality
       }, (res) => {
-        console.log(res)
         overlay(false)
         crop(res.image, _selection, devicePixelRatio, config.scaling, config.format, (image) => {
-          save(image, config.format, config.save)
+          sendToBackground(image, true)
           selection = null
         })
       })
@@ -84,25 +82,28 @@ var capture = (force) => {
     }, (res) => {
       overlay(false)
       if (devicePixelRatio !== 1 && !config.scaling) {
-        var area = {x: 0, y: 0, w: innerWidth, h: innerHeight}
+        var area = { x: 0, y: 0, w: innerWidth, h: innerHeight }
         crop(res.image, area, devicePixelRatio, config.scaling, config.format, (image) => {
-          save(image, config.format, config.save, config.clipboard, config.dialog)
+          sendToBackground(image, false)
         })
       }
       else {
-        save(res.image, config.format, config.save, config.clipboard, config.dialog)
+        sendToBackground(res.image, false)
       }
     })
   }
 }
 
-var save = (image, format, save) => {
-  if (save.includes('file')) {
-    //Open frontend
-    console.log(image)
-    window.open("https://github.com/explore", "_blank");
-  }
-}
+var sendToBackground = (image, open) => {
+  data = {image , open}
+  setTimeout(()=>{
+    chrome.runtime.sendMessage({ message: 'returnImage', data }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error("Error sending message:", chrome.runtime.lastError);
+      }
+    });
+  }, 50)
+};
 
 window.addEventListener('resize', ((timeout) => () => {
   clearTimeout(timeout)
@@ -113,11 +114,10 @@ window.addEventListener('resize', ((timeout) => () => {
 })())
 
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  console.log(req)
   config.method = req.method
   if (req.message === 'init') {
     res({}) // prevent re-injecting
-    
+
     if (!jcrop) {
       image(() => init(() => {
         overlay()

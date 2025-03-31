@@ -55,3 +55,14 @@ body.dark-mode {
 .rainbow {
     animation: 2s infinite rainbow;
 }
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.603);
+    border: none;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: white;
+}

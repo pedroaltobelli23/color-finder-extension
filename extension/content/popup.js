@@ -1,3 +1,4 @@
+// Crop Button
 document.getElementById("injectButton").addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.runtime.sendMessage({ action: "inject", tabId: tab.id, method: 'crop' });
@@ -11,6 +12,7 @@ document.getElementById("injectButton").addEventListener("click", async () => {
     button.disabled = true;
 });
 
+// Full Page Button
 document.getElementById("fullpageButton").addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.runtime.sendMessage({ action: "inject", tabId: tab.id, method: 'page' });
@@ -19,12 +21,28 @@ document.getElementById("fullpageButton").addEventListener("click", async () => 
     button.disabled = true;
 });
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function () {
     const body = document.body;
     const themeIcon = document.getElementById("themeIcon");
     const themeToggle = document.getElementById("themeToggle");
     const button = document.getElementById("fullpageButton");
-    
+
+    chrome.storage.local.get("openedByScript", (data) => {
+        const h3 = document.createElement("h3");
+        if (data.openedByScript) {
+            chrome.storage.local.get('imagem', function (data) {
+                h3.textContent = data.imagem;
+            })
+        } else {
+            // Nothing is suposed to happen in this case
+            h3.textContent = "Popup opened by user clicking the extension icon";
+        }
+
+        document.body.appendChild(h3);
+        // Reset the flag after checking
+        chrome.storage.local.set({ openedByScript: false });
+    });
+
     // Load saved theme
     chrome.storage.sync.get("theme", function (data) {
         if (data.theme === "dark") {
