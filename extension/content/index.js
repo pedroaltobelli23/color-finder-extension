@@ -1,17 +1,6 @@
 
 var jcrop, selection
 
-var config = {
-  method: 'crop',
-  format: 'png',
-  quality: 100,
-  scaling: true,
-  save: ['file'],
-  clipboard: 'url',
-  dialog: true,
-  icon: 'default',
-}
-
 var overlay = ((active) => (state) => {
   active = typeof state === 'boolean' ? state : state === null ? active : !active
   $('.jcrop-holder')[active ? 'show' : 'hide']()
@@ -62,35 +51,20 @@ var init = (done) => {
 }
 
 var capture = (force) => {
-  if (selection && (config.method === 'crop' || (config.method === 'wait' && force))) {
+  if (selection) {
     jcrop.release()
     setTimeout(() => {
       var _selection = selection
       chrome.runtime.sendMessage({
-        message: 'capture', format: config.format, quality: config.quality
+        message: 'capture', format: 'png', quality: 100
       }, (res) => {
         overlay(false)
-        crop(res.image, _selection, devicePixelRatio, config.scaling, config.format, (image) => {
+        crop(res.image, _selection, devicePixelRatio, true, 'png', (image) => {
           sendToBackground(image, true)
           selection = null
         })
       })
     }, 50)
-  } else if (config.method === 'page') {
-    chrome.runtime.sendMessage({
-      message: 'capture', format: config.format, quality: config.quality
-    }, (res) => {
-      overlay(false)
-      if (devicePixelRatio !== 1 && !config.scaling) {
-        var area = { x: 0, y: 0, w: innerWidth, h: innerHeight }
-        crop(res.image, area, devicePixelRatio, config.scaling, config.format, (image) => {
-          sendToBackground(image, false)
-        })
-      }
-      else {
-        sendToBackground(res.image, false)
-      }
-    })
   }
 }
 
@@ -114,7 +88,6 @@ window.addEventListener('resize', ((timeout) => () => {
 })())
 
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  config.method = req.method
   if (req.message === 'init') {
     res({}) // prevent re-injecting
 

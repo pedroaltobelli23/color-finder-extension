@@ -9,8 +9,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-function inject(tabId, methodClick) {
-  chrome.tabs.sendMessage(tabId, { message: "init", method: methodClick }, (res) => {
+function inject(tabId) {
+  chrome.tabs.sendMessage(tabId, { message: "init"}, (res) => {
     if (res) {
       clearTimeout(timeout);
     }
@@ -26,7 +26,7 @@ function inject(tabId, methodClick) {
     chrome.scripting.executeScript({ files: ["content/index.js"], target: { tabId } });
 
     setTimeout(() => {
-      chrome.tabs.sendMessage(tabId, { message: "init", method: methodClick });
+      chrome.tabs.sendMessage(tabId, { message: "init" });
     }, 100);
   }, 100);
 }
