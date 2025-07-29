@@ -1,9 +1,9 @@
 import pandas as pd
 import cv2
 import base64
-import io
 import numpy as np
-from PIL import Image
+import json
+from utils.quantization import image_quantization
 
 class ImageControl:
     @classmethod
@@ -18,10 +18,6 @@ class ImageControl:
             img_str = img_dict["image"].split(",")[1]
             img_base64 = base64.b64decode(img_str)
             
-            # Save it as a file, just for text
-            with open("saved_image.png", "wb") as f:
-                f.write(img_base64)
-            
             nparr = np.frombuffer(img_base64, np.uint8)
             img_raw = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             image = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
@@ -29,10 +25,27 @@ class ImageControl:
             print(f"Shape: {image.shape}")
             print("Doing image quantizaion...", end="\n")
             
-            return None
+            resized_image, quantized_image, name_quantColorRGB = image_quantization(image, 5)
+            
+            print("Process endend")
+            
+            result = {
+                "resized_image": cls.decode_array_to_base64(resized_image),
+                "quantized_image": cls.decode_array_to_base64(quantized_image),
+                "colors": name_quantColorRGB
+            }
+            
+            return json.dumps(result)
         except Exception as e:
             df = pd.DataFrame({"col1":[1,2,3,4,5], "col2":[5,4,3,2,1]})
             json_response = df.to_json(orient="records")
             print(f"Error decoding image: {e}")
             return json_response
+        
+        
+    @classmethod
+    def decode_array_to_base64(cls, array: np.ndarray):
+        _, buffer = cv2.imencode('.jpg', array)
+        jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+        return jpg_as_text
     

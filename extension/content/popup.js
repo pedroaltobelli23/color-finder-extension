@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 container.appendChild(loadingDiv);
     
                 try {
-                    const response = await fetch('http://localhost:5000/api/image', {
+                    const response = await fetch('http://localhost:5000/api/image/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -51,9 +51,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log("API result:", result);
 
                     container.innerHTML = "";
-                    const resultDiv = document.createElement('pre');
-                    resultDiv.textContent = JSON.stringify(result, null, 2);
-                    container.appendChild(resultDiv);
+                    // const resultDiv = document.createElement('pre');
+                    // resultDiv.textContent = JSON.stringify(result.colors, null, 2);
+                    // container.appendChild(resultDiv);
     
                 } catch (error) {
                     console.error("API request failed:", error);
