@@ -61,7 +61,6 @@ HTML_HSV_COLORS = {
     "cornflowerblue": [154, 147, 237],
     "mediumaquamarine": [113, 128, 205],
     "dimgray": [0, 0, 105],
-    "dimgrey": [0, 0, 105],
     "slateblue": [175, 143, 205],
     "olivedrab": [56, 192, 142],
     "slategray": [148, 56, 144],

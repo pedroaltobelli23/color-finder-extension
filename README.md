@@ -20,3 +20,11 @@
 ![demo-gif]()  
 
 ---
+
+## Settings
+- Maximum number of colors to detect
+
+https://github.blog/open-source/for-the-love-of-code-2025/
+
+
+Tem alguma coisa errada com as cores que eu peguei em parameters.py. Checa-las novamente

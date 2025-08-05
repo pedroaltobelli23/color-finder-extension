@@ -51,10 +51,86 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log("API result:", result);
 
                     container.innerHTML = "";
-                    // const resultDiv = document.createElement('pre');
-                    // resultDiv.textContent = JSON.stringify(result.colors, null, 2);
-                    // container.appendChild(resultDiv);
-    
+                    console.log("pirnt de teste")
+                    // container.innerHTML = result.resized_image
+                    
+                    // Wrapper Start
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('wrapper');
+                    wrapper.style.width = '600px'; // TODO: parameter not fixed value
+                    wrapper.style.height = '400px'; // TODO: parameter not fixed value
+                    
+                    // Resized Image
+                    const resized = document.createElement('img');
+                    resized.src = 'data:image/png;base64,' + result.resized_image;
+                    resized.classList.add('resized');
+
+                    // Quantizated Image
+                    const quantized = document.createElement('img');
+                    quantized.src = 'data:image/png;base64,' + result.quantized_image;
+                    quantized.classList.add('quantized');
+
+                    // Tooltip
+                    const tooltip = document.createElement('div');
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.background = '#000000cc';
+                    tooltip.style.color = '#fff';
+                    tooltip.style.padding = '4px 8px';
+                    tooltip.style.borderRadius = '4px';
+                    tooltip.style.fontSize = '14px';
+                    tooltip.style.pointerEvents = 'none';
+                    tooltip.style.display = 'none';
+                    tooltip.style.zIndex = '10';
+
+                    // Append wrapper to container
+                    wrapper.appendChild(resized);
+                    wrapper.appendChild(quantized);
+                    wrapper.appendChild(tooltip);
+                    container.appendChild(wrapper);
+
+                    // Canvas to read pixels
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 600;
+                    canvas.height = 400;
+                    canvas.style.display = 'none';
+                    document.body.appendChild(canvas);
+
+
+                    const ctx = canvas.getContext('2d');
+
+                    quantized.onload = () => {
+                        ctx.drawImage(quantized, 0, 0, 600, 400);
+                    };
+
+                    // Inverter dicionário de cores (RGB → nome)
+                    const rgbToName = {};
+                    for (const [name, rgb] of Object.entries(result.colors)) {
+                        rgbToName[rgb.join(',')] = name;
+                    }
+
+                    // Evento de mouse move
+                    wrapper.addEventListener('mousemove', (e) => {
+                        const rect = wrapper.getBoundingClientRect();
+                        const x = Math.floor(e.clientX - rect.left);
+                        const y = Math.floor(e.clientY - rect.top);
+
+                        const pixel = ctx.getImageData(x, y, 1, 1).data;
+                        const rgbKey = `${pixel[2]},${pixel[1]},${pixel[0]}`;
+                        const colorName = rgbToName[rgbKey] || `rgb(${rgbKey})`;
+
+                        console.log(colorName);
+                        
+                        tooltip.textContent = colorName;
+                        tooltip.style.left = `${x + 10}px`;
+                        tooltip.style.top = `${y + 10}px`;
+                        tooltip.style.display = 'block';
+                    });
+
+                    // Esconder tooltip quando sai do wrapper
+                    wrapper.addEventListener('mouseleave', () => {
+                        tooltip.style.display = 'none';
+                    });
+                    
                 } catch (error) {
                     console.error("API request failed:", error);
                     loadingDiv.innerHTML = `<h5 class="text-danger">Failed to analyze image.</h5>`;

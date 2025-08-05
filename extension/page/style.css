@@ -1,6 +1,6 @@
 html {
     width: 600px;
-    height: 400px;
+    height: 600px;
 }
 
 body {
@@ -10,6 +10,11 @@ body {
 
 header {
     width: 100%;
+    height: 60px;
+}
+
+.custom-background {
+    background-color: #301f87;
 }
 
 :root {
@@ -27,35 +32,6 @@ body.dark-mode {
     color: #ffffff;
 }
 
-/*Rainbow tittle*/
-.wordA {
-    --colorA: red;
-    --colorB: yellow;
-    --conlorC: blue;
-}
-
-.wordB {
-    --colorA: blue;
-    --colorB: red;
-    --conlorC: yellow;
-}
-
-.wordC {
-    --colorA: yellow;
-    --colorB: blue;
-    --conlorC: red;
-}
-
-@keyframes rainbow {
-    33% {color: var(--colorA); }
-    66% {color: var(--colorB); }
-    100% {color: var(--colorC); }
-}
-
-.rainbow {
-    animation: 2s infinite rainbow;
-}
-
 .card {
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.603);
@@ -65,4 +41,26 @@ body.dark-mode {
 body.dark-mode .card {
     background-color: #1e1e1e;
     color: white;
+}
+
+.wrapper {
+    position: relative;
+    cursor: crosshair;    
+}
+
+.resized {
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.quantized {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
 }

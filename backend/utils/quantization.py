@@ -8,6 +8,7 @@ import os
 from configs.parameters import BASIC_HSV_COLORS, HTML_HSV_COLORS, X11_HSV_COLORS
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.metrics import silhouette_score
 
 def plot_kmeans(points, labels, color_list): 
     height, width, _ = points.shape
@@ -67,46 +68,56 @@ def find_closest(centers: list, hsv_colors: dict):
 def RGB2HEX(color):
     return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
 
-def image_quantization(image: np.ndarray, number_of_colors: int):
+def image_quantization(image: np.ndarray, range_n_clusters=[5, 10, 15]):
     """
-    Perform image quantization using KMeans clustering.
-
-    Args:
-        image (np.ndarray): Input image as a NumPy array (in BGR format).
-        number_of_colors (int): Desired number of dominant colors to quantize to.
-
-    Returns:
-        modified_image_raw (np.ndarray): Resized version of the original image (600x400).
-        quantized_image (np.ndarray): Image reconstructed using the quantized colors.
-        name_quantColorRGB (dict): Dictionary mapping color names to their RGB values.
+    Perform image quantization using KMeans clustering and select best number of clusters using silhouette score.
     """
     
-    # Resize the image to reduce computation time
+    # Step 1: Resize image to 600x400 to reduce computation
     modified_image_raw = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
 
-    # Reshape image to a 2D array of pixels (rows: pixels, columns: B, G, R)
-    modified_image = modified_image_raw.reshape(-1, 3)
+    # Step 2: Flatten image
+    array_modified_image = modified_image_raw.reshape(-1, 3)
 
-    # Apply KMeans clustering to find dominant colors
-    clf = KMeans(n_clusters=number_of_colors, n_init='auto', random_state=42)
-    labels = clf.fit_predict(modified_image)
+    # Step 3: Sample pixels
+    sample_size = 10000
+    if array_modified_image.shape[0] > sample_size:
+        sample_indices = np.random.choice(array_modified_image.shape[0], size=sample_size, replace=False)
+        sampled_array = array_modified_image[sample_indices]
+    else:
+        sampled_array = array_modified_image
 
-    # Count number of pixels per cluster
-    counts = Counter(labels)
+    # Step 4: Find best n_clusters using silhouette score
+    best_n_clusters = None
+    best_score = -1
+    best_kmeans = None
+
+    for n_clusters in range_n_clusters:
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=42)
+        labels = kmeans.fit_predict(sampled_array)
+        score = silhouette_score(sampled_array, labels)
+        print(f"n_clusters = {n_clusters}, silhouette_score = {score:.4f}")
+        if score > best_score:
+            best_score = score
+            best_n_clusters = n_clusters
+            best_kmeans = kmeans
+
+    print(f"Best number of clusters: {best_n_clusters} with score: {best_score:.4f}")
+
+    # Step 5: Fit KMeans on the full array with best cluster count
+    final_kmeans = KMeans(n_clusters=best_n_clusters, n_init='auto', random_state=42)
+    final_labels = final_kmeans.fit_predict(array_modified_image)
+
+    # Step 6: Reconstruct quantized image
+    center_colors = final_kmeans.cluster_centers_.astype(int)
+    quantized_image = center_colors[final_labels].reshape(modified_image_raw.shape).astype(np.uint8)
+
+    # Step 7: Count colors and generate name map
+    counts = dict(Counter(final_labels))
     counts = dict(sorted(counts.items()))
 
-    # Get cluster centers (i.e., dominant colors)
-    center_colors = clf.cluster_centers_.astype(int)
     quant_colors = [center_colors[i] for i in counts.keys()]
-
-    # Replace each pixel with the color of its cluster
-    quantized_image = center_colors[labels]
-    quantized_image = quantized_image.reshape(400, 600, 3).astype(np.uint8)
-
-    # Map RGB values to their closest HTML HSV-based color names
     name_quantColorRGB = find_closest(quant_colors, HTML_HSV_COLORS)
-
-    # Convert RGB colors to HEX format
     name_quantColorHEX = {k: RGB2HEX(v) for k, v in name_quantColorRGB.items()}
 
     return modified_image_raw, quantized_image, name_quantColorRGB
