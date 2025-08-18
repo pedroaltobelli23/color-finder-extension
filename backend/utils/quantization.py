@@ -3,9 +3,9 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from collections import Counter
-from skimage.color import rgb2lab, deltaE_cie76, lab2rgb
+from skimage.color import rgb2lab, deltaE_cie76, deltaE_ciede2000
 import os
-from configs.parameters import BASIC_HSV_COLORS, HTML_HSV_COLORS, X11_HSV_COLORS
+from configs.parameters import SVG_1_1_RGB_COLORS 
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.metrics import silhouette_score
@@ -50,25 +50,34 @@ def hsv_to_rgb(code):
     
     return rgb[0][0]
 
-def find_closest(centers: list, hsv_colors: dict):
-    lab_lookup = {k: rgb2lab(np.uint8(np.asarray([[hsv_to_rgb(v)]]))) for k, v in hsv_colors.items()}
-    response = dict()
+def find_closest(centers: list, rgb_colors: dict):
+    # Convert RGB colors in dict to Lab for comparison
+    lab_lookup = {
+        name: rgb2lab(np.uint8(np.asarray([[rgb]])))
+        for name, rgb in rgb_colors.items()
+    }
+    
+    response = {}
     for center in centers:
         lab_center = rgb2lab(np.uint8(np.asarray([[center]])))
-        smallest_diff = 100_000_000
+        
+        smallest_diff = float("inf")
         smallest_diff_name = None
-        for lookup_name, lookup in lab_lookup.items():
-            diff = deltaE_cie76(lab_center, lookup)[0][0]
+        
+        for lookup_name, lookup_lab in lab_lookup.items():
+            diff = deltaE_ciede2000(lab_center, lookup_lab)[0][0]
             if diff < smallest_diff:
                 smallest_diff = diff
                 smallest_diff_name = lookup_name
+        
         response[smallest_diff_name] = center.tolist()
+    
     return response
 
 def RGB2HEX(color):
     return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
 
-def image_quantization(image: np.ndarray, range_n_clusters=[5, 10, 15]):
+def image_quantization(image: np.ndarray, n_clusters=5):
     """
     Perform image quantization using KMeans clustering and select best number of clusters using silhouette score.
     """
@@ -79,33 +88,8 @@ def image_quantization(image: np.ndarray, range_n_clusters=[5, 10, 15]):
     # Step 2: Flatten image
     array_modified_image = modified_image_raw.reshape(-1, 3)
 
-    # Step 3: Sample pixels
-    sample_size = 10000
-    if array_modified_image.shape[0] > sample_size:
-        sample_indices = np.random.choice(array_modified_image.shape[0], size=sample_size, replace=False)
-        sampled_array = array_modified_image[sample_indices]
-    else:
-        sampled_array = array_modified_image
-
-    # Step 4: Find best n_clusters using silhouette score
-    best_n_clusters = None
-    best_score = -1
-    best_kmeans = None
-
-    for n_clusters in range_n_clusters:
-        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=42)
-        labels = kmeans.fit_predict(sampled_array)
-        score = silhouette_score(sampled_array, labels)
-        print(f"n_clusters = {n_clusters}, silhouette_score = {score:.4f}")
-        if score > best_score:
-            best_score = score
-            best_n_clusters = n_clusters
-            best_kmeans = kmeans
-
-    print(f"Best number of clusters: {best_n_clusters} with score: {best_score:.4f}")
-
     # Step 5: Fit KMeans on the full array with best cluster count
-    final_kmeans = KMeans(n_clusters=best_n_clusters, n_init='auto', random_state=42)
+    final_kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=42)
     final_labels = final_kmeans.fit_predict(array_modified_image)
 
     # Step 6: Reconstruct quantized image
@@ -117,7 +101,6 @@ def image_quantization(image: np.ndarray, range_n_clusters=[5, 10, 15]):
     counts = dict(sorted(counts.items()))
 
     quant_colors = [center_colors[i] for i in counts.keys()]
-    name_quantColorRGB = find_closest(quant_colors, HTML_HSV_COLORS)
-    name_quantColorHEX = {k: RGB2HEX(v) for k, v in name_quantColorRGB.items()}
+    name_quantColorRGB = find_closest(quant_colors, SVG_1_1_RGB_COLORS)
 
     return modified_image_raw, quantized_image, name_quantColorRGB
